@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { MapPin, Check, Search } from "lucide-react"
+import { MapPin, Check, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { availableCities } from "@/data/sun-data"
 
@@ -50,10 +50,21 @@ export function LocationSearch({ location, setLocation, onSearch }: LocationSear
     }
   }, [])
 
+  // Helper function to blur focus and reset state
+  const resetInputAndBlurFocus = () => {
+    setLocation("")
+    setIsFocused(false)
+    if (inputRef.current) {
+      inputRef.current.blur()
+    }
+    // Move focus to body
+    document.body.focus()
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       onSearch()
-      setIsFocused(false)
+      resetInputAndBlurFocus()
     } else if (e.key === "Escape") {
       setIsFocused(false)
     }
@@ -65,11 +76,22 @@ export function LocationSearch({ location, setLocation, onSearch }: LocationSear
 
   const handleSelectCity = (city: string) => {
     setLocation(city)
+    // Keep the dropdown open and focus on the input
     if (inputRef.current) {
       inputRef.current.focus()
     }
-    setIsFocused(false)
-    // No longer automatically triggering search after selection
+  }
+
+  const handleClearInput = () => {
+    setLocation("")
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const handleSearch = () => {
+    onSearch()
+    resetInputAndBlurFocus()
   }
 
   return (
@@ -102,11 +124,21 @@ export function LocationSearch({ location, setLocation, onSearch }: LocationSear
               autoCapitalize="off"
               spellCheck="false"
               className={cn(
-                "pl-9 transition-all duration-200 w-full",
+                "pl-9 pr-9 transition-all duration-200 w-full",
                 isHovered && "border-slate-400 bg-slate-50 shadow-sm",
                 isFocused && "border-primary ring-1 ring-primary/20",
               )}
             />
+            {location && (
+              <button
+                type="button"
+                onClick={handleClearInput}
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 hover:text-slate-600 z-10 transition-colors duration-200"
+                aria-label="Clear input"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
 
             {/* Custom dropdown */}
             {isFocused && filteredCities.length > 0 && (
@@ -136,10 +168,7 @@ export function LocationSearch({ location, setLocation, onSearch }: LocationSear
           </div>
         </div>
         <Button
-          onClick={() => {
-            onSearch()
-            setIsFocused(false)
-          }}
+          onClick={handleSearch}
           aria-label="Set Location"
           className="transition-all duration-200 hover:shadow-md"
         >
