@@ -10,8 +10,7 @@ import { DayProgressTracker } from "@/components/day-progress-tracker"
 import { WeatherInfo } from "@/components/weather-info"
 import { ActivityTabs } from "@/components/activity-tabs"
 import { getSunData, activities, availableCities } from "@/data/sun-data"
-import { useToast } from "@/hooks/use-toast"
-import { Toaster } from "@/components/ui/toaster"
+import { toast } from "sonner"
 
 export default function SunriseSunsetCard() {
   const [location, setLocation] = useState("")
@@ -20,8 +19,6 @@ export default function SunriseSunsetCard() {
   const [activeTab, setActiveTab] = useState("sunrise")
   const [dayProgress, setDayProgress] = useState(50)
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString())
-
-  const { toast } = useToast()
 
   // Update current time and day progress
   useEffect(() => {
@@ -48,19 +45,13 @@ export default function SunriseSunsetCard() {
       if (isValidLocation) {
         setSunData(getSunData(location))
         setCurrentLocation(location)
-        toast({
-          title: "Location updated",
+        toast.success(`Location updated to ${location}`, {
           description: `Sun times now showing for ${location}`,
-          variant: "default",
-          position: "bottom-left",
         })
       } else {
         // Show error toast for invalid location
-        toast({
-          title: "Invalid location",
-          description: `"${location}" is not in our database. Please try one of the suggested cities.`,
-          variant: "destructive",
-          position: "bottom-left",
+        toast.error(`Invalid location: ${location}`, {
+          description: `Please try one of the suggested cities.`,
         })
       }
     }
@@ -109,7 +100,6 @@ export default function SunriseSunsetCard() {
           </div>
         </div>
       </div>
-      <Toaster />
     </Card>
   )
 }

@@ -93,3 +93,8 @@ body {
   }
 }
 
+/* Custom styles for Sonner toast */
+.sonner-toast {
+  @apply font-sans;
+}
+
